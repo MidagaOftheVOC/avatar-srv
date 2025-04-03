@@ -1,4 +1,4 @@
-package model;
+package avatar.model;
 
 
 import jakarta.persistence.*;
@@ -18,6 +18,8 @@ import lombok.NoArgsConstructor;
  * The API should handle only transmission of the filenames,
  * monolith should build the appropriate URL by combining the absolute path
  * to this microservice, the path to the avatar dir and teh file name in the String field.
+ * Point is to not be able to find usernames by trying to access random strings.
+ * Only UUID.toString() + file extension will be the names.
  *
  *  //  Note to the comment: it'd be better if this is done in the MS and
  *      the finalised URL is returned to the monolith.
