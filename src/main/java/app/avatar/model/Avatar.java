@@ -11,8 +11,6 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "avatar_mappings")
 /**
  * IMPORTANT:
  *
@@ -26,9 +24,11 @@ import java.util.UUID;
  *  //  Note to the comment: it'd be better if this is done in the MS and
  *      the finalised URL is returned to the monolith.
  */
+@Entity
+@Table(name = "avatar_mappings")
 public class Avatar {
 
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id //@GeneratedValue(strategy = GenerationType.UUID)   // This is more like a big map, not auto generated.
     @Column(name = "id", nullable = false)
     private UUID id;
 
