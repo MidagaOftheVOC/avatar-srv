@@ -1,20 +1,20 @@
-package avatar.service;
+package app.avatar.service;
 
-import avatar.model.Avatar;
+import app.avatar.model.Avatar;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import avatar.repo.AvatarRepository;
+import app.avatar.repo.AvatarRepository;
 
 import java.util.UUID;
 
 @Service
 public class AvatarService {
 
-    final String RELATIVE_PATH_TO_DEFAULT_AVATAR = "resources/images/default-avatar.png";
+    final String RELATIVE_PATH_TO_DEFAULT_AVATAR = "resources/images/default-app.avatar.png";
     final String RELATIVE_PATH_TO_AVATAR_DIR = "resources/images/avatars/";
 
     // real smart
-    @Value("${avatar.base-url}")
+    @Value("${app.avatar.base-url}")
     private String baseURL;
 
     final private AvatarRepository theAvatarRepo;
@@ -34,7 +34,7 @@ public class AvatarService {
         return newFilename;
     }
 
-    public String retrieveFilenameById(int id){
+    public String retrieveFilepathById(UUID id){
 
         // Yes, nulls should be allowed, otherwise part of Avatar management will fall on monolith
         Avatar avatar = theAvatarRepo.findById(id).orElseGet(() -> null);
@@ -49,5 +49,7 @@ public class AvatarService {
     private String prependUrlCommonlements(String relativeToCurrentHostURL){
         return baseURL + relativeToCurrentHostURL;
     }
+
+
 
 }

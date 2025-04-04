@@ -1,10 +1,12 @@
-package avatar.model;
+package app.avatar.model;
 
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -14,10 +16,10 @@ import lombok.NoArgsConstructor;
 /**
  * IMPORTANT:
  *
- * @field imageFilename - is the file name of the image in the common avatar directory.
+ * @field imageFilename - is the file name of the image in the common app.avatar directory.
  * The API should handle only transmission of the filenames,
  * monolith should build the appropriate URL by combining the absolute path
- * to this microservice, the path to the avatar dir and teh file name in the String field.
+ * to this microservice, the path to the app.avatar dir and teh file name in the String field.
  * Point is to not be able to find usernames by trying to access random strings.
  * Only UUID.toString() + file extension will be the names.
  *
@@ -26,9 +28,9 @@ import lombok.NoArgsConstructor;
  */
 public class Avatar {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    private int id;
+    private UUID id;
 
     @Column(name = "image_filename", nullable = false)
     private String imageFilename;
