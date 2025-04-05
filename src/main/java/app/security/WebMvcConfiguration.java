@@ -24,10 +24,16 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 .csrf(csrf -> csrf.disable())   // since it doesn't interract with browser forms directly
                 .authorizeHttpRequests(matchers -> matchers
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/avatar_test", "/upload_avatar").permitAll()
+                        .requestMatchers("/avatar_test", "/upload_avatar", "/return_all_users").permitAll()
                         .requestMatchers("/upload_avatar/**").permitAll()
                         .anyRequest().permitAll()
                 );
         return http.build();
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/avatar-storage/**")
+                .addResourceLocations("file:./avatar-storage/");
     }
 }

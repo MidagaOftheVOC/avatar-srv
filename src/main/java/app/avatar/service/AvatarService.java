@@ -1,6 +1,7 @@
 package app.avatar.service;
 
 import app.Application;
+import app.avatar.AvatarNotFoundInMicroserviceDB;
 import app.avatar.AvatarReceivedMalformedFile;
 import app.avatar.AvatarReceivedWrongFileFormat;
 import app.avatar.AvatarUserAlreadyHasAvatar;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import app.avatar.repo.AvatarRepository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -44,6 +46,17 @@ public class AvatarService {
     )
     {
         theAvatarRepo = avatarRepository;
+    }
+
+    public String[] returnAllusers(){
+        UUID[] allIds = theAvatarRepo.findAllIds();
+        String[] self = new String[allIds.length];
+
+        for(int i = 0; i < allIds.length; i++){
+            self[i] = allIds[i].toString();
+        }
+
+        return self;
     }
 
     private String getFileExtension(String fullFileName){
@@ -103,10 +116,7 @@ public class AvatarService {
         String extention = getFileExtension(file.getOriginalFilename());
         String newFilename  = generateFileName() + "." + extention;
 
-        Path intendedAbsolutePath = FileSystems.getDefault().getPath("").toAbsolutePath()
-                .resolve(avatarImageStorage)
-                .resolve(newFilename);
-
+        Path intendedAbsolutePath = getPathToAvatarStorage().resolve(newFilename);
 
         System.out.println("Resolved path: " + intendedAbsolutePath.toString());
 
@@ -120,9 +130,31 @@ public class AvatarService {
         Avatar avatar = new Avatar();
 
         avatar.setId(userId);
-        avatar.setImageFilename(intendedAbsolutePath.toString());
+        avatar.setImageFilename(newFilename);
 
         theAvatarRepo.save(avatar);
+    }
+
+    public void deleteAvatar(UUID userId) throws IOException {
+
+        Optional<Avatar> avatar = theAvatarRepo.findById(userId);
+
+        if(!avatar.isPresent()){
+            throw new AvatarNotFoundInMicroserviceDB("Trying to delete avatar of user who has no avatar.");
+        }
+
+        File fileToRemove =  getPathToAvatarStorage().resolve(avatar.get().getImageFilename()).toFile();
+        if(!fileToRemove.delete()){
+            System.out.println("Couldn't delete file at location: " + fileToRemove.getAbsolutePath());
+            throw new IOException("Couldn't delete file at location: " + fileToRemove.getAbsolutePath());
+        }
+
+        theAvatarRepo.delete(avatar.get());
+    }
+
+    private Path getPathToAvatarStorage(){
+        return FileSystems.getDefault().getPath("").toAbsolutePath()
+                .resolve(avatarImageStorage);
     }
 
     /**
@@ -134,19 +166,10 @@ public class AvatarService {
     }
 
     public String retrieveFilepathById(UUID id){
-
-        // Yes, nulls should be allowed, otherwise part of Avatar management will fall on monolith
-        Avatar avatar = theAvatarRepo.findById(id).orElseGet(() -> null);
-
-        if(avatar == null){
-            return prependUrlCommonlements(RELATIVE_PATH_TO_DEFAULT_AVATAR);
+        Optional<Avatar> avatar = theAvatarRepo.findById(id);
+        if(!avatar.isPresent()){
+            return baseURL + "images/default-avatar.png";
         }
-
-        return prependUrlCommonlements(avatarImageStorage + avatar.getImageFilename());
+        return baseURL + "avatar-storage/" + avatar.get().getImageFilename();
     }
-
-    private String prependUrlCommonlements(String relativeToCurrentHostURL){
-        return baseURL + relativeToCurrentHostURL;
-    }
-
 }

@@ -3,6 +3,7 @@ package app;
 import app.avatar.AvatarReceivedMalformedFile;
 import app.avatar.AvatarReceivedWrongFileFormat;
 import app.avatar.AvatarUserAlreadyHasAvatar;
+import app.avatar.model.Avatar;
 import app.avatar.service.AvatarService;
 import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties;
 import org.springframework.http.HttpStatus;
@@ -13,20 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
-
-
-/*
-*   Short documentation:
-*
-*   1.  Accessing localhost:8081/{id}
-*       Returns: A JSON with string containing a URL like "localhost:8081/images/default-app.avatar.png" or of format "localhost:8081/images/app.avatar/%s",
-*       where %s is a file name with an image
-*
-*   2.  Accessing localhost:8081/upload_avatar
-*       POST request, this includes a JSON with a mutli-part file inside
-*
- */
-
 
 @RestController
 public class AvatarController {
@@ -43,13 +30,12 @@ public class AvatarController {
     /**
      *  {id} contains a value from the "users" table in the monolith, which must match
      *  an ID that maps to a file name stored in this MS' database.
-     *
      */
     @GetMapping("/avatar/{id}")
     public ResponseEntity<String> retrieveAvatarImageURL(@PathVariable UUID id){
         String avatarUrl = theAvatarService.retrieveFilepathById(id);
-        //System.out.println("Nice: " + id);
-        return ResponseEntity    // yes we always return OK, if no avatar is found we return default
+        System.out.println(avatarUrl);
+        return ResponseEntity           // yes we always return OK, if no user-specific avatar is found we return default avatar url
                 .status(HttpStatus.OK)
                 .body(avatarUrl);
     }
@@ -89,10 +75,29 @@ public class AvatarController {
         }
     }
 
+    @DeleteMapping("/delete_avatar/{userId}")
+    public ResponseEntity<Void> deleteAvatar(@PathVariable("userId") UUID userId){
+        try {
+            theAvatarService.deleteAvatar(userId);
+        } catch (IOException e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
 
     @GetMapping("/avatar_test")
     public ResponseEntity<Void> test(){
         System.out.println("Test successful");
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/return_all_users")
+    public ResponseEntity<String[]> allUsers(){
+        System.out.println("Printing all users");
+        return ResponseEntity.ok().body(theAvatarService.returnAllusers());
     }
 }
