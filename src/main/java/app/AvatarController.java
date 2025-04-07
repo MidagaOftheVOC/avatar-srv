@@ -89,6 +89,13 @@ public class AvatarController {
                 .build();
     }
 
+    @GetMapping("/get_storage_path")
+    public ResponseEntity<String> getStoragePath(){
+        return ResponseEntity
+                .ok()
+                .body(theAvatarService.getStoragePath());
+    }
+
     @GetMapping("/avatar_test")
     public ResponseEntity<Void> test(){
         System.out.println("Test successful");

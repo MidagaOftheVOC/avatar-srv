@@ -48,6 +48,10 @@ public class AvatarService {
         theAvatarRepo = avatarRepository;
     }
 
+    public String getStoragePath(){
+        return avatarImageStorage;
+    }
+
     public String[] returnAllusers(){
         UUID[] allIds = theAvatarRepo.findAllIds();
         String[] self = new String[allIds.length];

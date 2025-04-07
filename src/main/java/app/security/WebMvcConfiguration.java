@@ -26,6 +26,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/avatar_test", "/upload_avatar", "/return_all_users").permitAll()
                         .requestMatchers("/upload_avatar/**").permitAll()
+                        .requestMatchers("/get_storage_path").permitAll()
                         .anyRequest().permitAll()
                 );
         return http.build();
